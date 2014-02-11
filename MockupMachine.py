@@ -109,7 +109,6 @@ class MockupMachine(inkex.Effect):
 		
 		configLines = (line.rstrip('\n') for line in open(self.options.config, 'r'))
 		
-		
 		for line in configLines:			
 			line = line.strip()
 			command1 = line[:1]
@@ -160,35 +159,44 @@ class MockupMachine(inkex.Effect):
 	Sanitize position of display:none for easier adaption later.
 	'''
 	def deactivateAll(self):
-		for e in self.SVG.findall('./{http://www.w3.org/2000/svg}g'):
-			if e.attrib['{http://www.inkscape.org/namespaces/inkscape}groupmode'] != 'layer':
-				continue
-			style = e.attrib['style']
-			style = re.sub(r'display:[a-z]*', '', style)
-			style = 'display:none;'+style
-			e.attrib['style'] = style
+		for e in self.SVG.iter('*'):
+			if '{http://www.inkscape.org/namespaces/inkscape}groupmode' in e.attrib:
+				if e.get('{http://www.inkscape.org/namespaces/inkscape}groupmode') != 'layer':
+					continue
+				if 'style' not in e.attrib:
+					continue
+				style = e.attrib['style']
+				style = re.sub(r'display:[a-z]*', '', style)
+				style = 'display:none;'+style
+				e.attrib['style'] = style
 
 	'''
 	Extract layer labels that are valid to use in config
 	
 	'''
 	def scanAvailableLayers(self):
-		for e in self.SVG.findall('./{http://www.w3.org/2000/svg}g'):
-			if e.attrib['{http://www.inkscape.org/namespaces/inkscape}groupmode'] != 'layer':
-				continue
-			self.availableLayers.append(e.attrib['{http://www.inkscape.org/namespaces/inkscape}label'])
+		for e in self.SVG.iter('*'):
+			if '{http://www.inkscape.org/namespaces/inkscape}groupmode' in e.attrib:
+				if e.get('{http://www.inkscape.org/namespaces/inkscape}groupmode') != 'layer':
+					continue
+				if '{http://www.inkscape.org/namespaces/inkscape}label' in e.attrib:
+					self.availableLayers.append(e.attrib['{http://www.inkscape.org/namespaces/inkscape}label']) 
+					#inkex.debug(e.attrib['{http://www.inkscape.org/namespaces/inkscape}label'])
 
 	'''
 	Activate the layer with the given label
 	
 	'''
 	def activateOne(self, label):
-		for e in self.SVG.findall('./{http://www.w3.org/2000/svg}g'):
-			if e.get('{http://www.inkscape.org/namespaces/inkscape}groupmode') != 'layer' or e.get('{http://www.inkscape.org/namespaces/inkscape}label') != label:
-				continue
-			style = e.attrib['style']
-			style = style.replace('display:none', 'display:inline');
-			e.attrib['style'] = style
+		for e in self.SVG.iter('*'):
+			if '{http://www.inkscape.org/namespaces/inkscape}groupmode' in e.attrib:
+				if e.get('{http://www.inkscape.org/namespaces/inkscape}groupmode') != 'layer' or e.get('{http://www.inkscape.org/namespaces/inkscape}label') != label:
+					continue
+				if 'style' not in e.attrib:
+					continue
+				style = e.attrib['style']
+				style = style.replace('display:none', 'display:inline');
+				e.attrib['style'] = style
 
 	'''
 	Write the given content to the given file
