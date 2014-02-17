@@ -70,6 +70,7 @@ class MockupMachine(inkex.Effect):
                 activeLayers = []
                 inkscapeExecutable = 'inkscape'
                 filename = ''
+		filenameCounter = 1
                 tempfileCounter = 0
                 renderBoxId = ''
                 NAMESPACES = { "inkscape": "http://www.inkscape.org/namespaces/inkscape",
@@ -151,6 +152,7 @@ class MockupMachine(inkex.Effect):
                                                                pass
                                                else:
                                                                self.filename = line[:-1]
+							       self.filenameCounter = self.filenameCounter + 1
                                ''' export the last pending image '''
                                if not exported:
                                                self.exportCurrent()
@@ -234,7 +236,7 @@ class MockupMachine(inkex.Effect):
                                self.writeFile(useFile, tostring(self.SVG))
                                infile = os.path.abspath(useFile)
                                
-                               outfile = self.options.outdir+'/'+self.filename+'.png'
+                               outfile = self.options.outdir+'/'+str(self.filenameCounter).zfill(2)+'-'+self.filename+'.png'
                                
                                if(self.renderBoxId):
                                                shellCmd = [self.treatPath(self.inkscapeExecutable),'-i', self.renderBoxId, '-z', '-e', self.treatPath(outfile), '-d', "90", self.treatPath(infile)]
